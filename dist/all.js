@@ -1,0 +1,13 @@
+class StudentsApi{static URL="https://6391adecac688bbe4c4f165a.mockapi.io/api/students/";static request(t="",e="GET",n){return fetch(StudentsApi.URL+t,{method:e,body:n?JSON.stringify(n):void 0,headers:{"Content-type":"application/json"}}).then(t=>{if(t.ok)return t.json();throw new Error("Can not execute request to server")})}static getList(){return StudentsApi.request().catch(()=>{throw new Error("Can not fetch student list from server")})}static create(t){return StudentsApi.request("","POST",t).catch(()=>{throw new Error("Can not create student on server")})}static update(t,e){return StudentsApi.request(t,"PUT",e).catch(()=>{throw new Error("Can not update student on server")})}static delete(t){return StudentsApi.request(t,"DELETE").catch(()=>{throw new Error("Can not delete student on server")})}}export default StudentsApi;const studentListEl=document.querySelector("#studentList"),studentFormEl=document.querySelector("#studentForm");function onStudentFormSubmit(t){t.preventDefault();t=getStudent();isStudentValid(t)||alert("Invalid student name"),StudentsApi.create(t).then(renderOne)}function onStudentListClick(t){const e=getStudentEl(t.target);var n=getStudentElId(e);n&&t.target.classList.contains("deleteBtn")&&StudentsApi.delete(n).then(()=>{e.remove()})}function onStudentListFocusOut(t){var e=getStudentEl(t.target),n=getStudentElId(e);n&&t.target.classList.contains("markInput")&&(t=getAllMarks(e),StudentsApi.update(n,{marks:t}))}function getAllMarks(t){return Array.from(t.querySelectorAll(".markInput")).map(t=>Number(t.value))}function getStudentEl(t){return t.closest(".studentItem")}function getStudentElId(t){return t.dataset.id}function getStudent(){return{id:studentFormEl.id.value,name:studentFormEl.name.value}}function isStudentValid(t){return!0}function renderList(t){t=t.map(generateStudentHtml).join("");studentListEl.innerHTML=t}function renderOne(t){t=generateStudentHtml(t);studentListEl.insertAdjacentHTML("beforeend",t)}function generateStudentHtml(t){return`
+    <tr data-id="${t.id}" class="studentItem">
+      <td>${t.name}</td>
+      ${generateStudentMarks(t.marks)}
+      <td>
+        <button class="deleteBtn">Delete</button>
+      </td>
+    </tr>
+  `}function generateStudentMarks(t){return t.reduce((t,e)=>t+`
+      <td>
+        <input class="markInput" type="text" value="${e}">
+      </td>
+    `,"")}studentFormEl.addEventListener("submit",onStudentFormSubmit),studentListEl.addEventListener("click",onStudentListClick),studentListEl.addEventListener("focusout",onStudentListFocusOut),console.log("st"),StudentsApi.getList().then(renderList);
